@@ -1,0 +1,61 @@
+#geosearch-result-div {
+  width: 400px;
+  height: 250px;
+  position: absolute;
+  z-index: 1001;
+  right: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 10px;
+  opacity: 0.8;
+
+}
+
+#geosearch-result-div tr { 
+  border: solid;
+  border-width: 1px 0;
+  border-style: dashed;
+  border-color: #b6b5b5;
+}
+
+#geosearch-result-div td {
+  padding: 8px;
+}
+
+#geosearch-result-div tr:first-child {
+  border-top: none;
+}
+#geosearch-result-div tr:last-child {
+  border-bottom: none;
+}
+
+#geosearch-button {
+  position: absolute;
+  z-index: 1001;
+  top: 83px;
+  left: 5px;
+  height: 30px;
+}
+
+#close-geosearch-result {
+  margin-top: -31px;
+  margin-right: 51px;
+}
+
+.leaflet-draw {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+  left: 20px;
+  top: 28px;
+
+}
+  .leaflet-draw .leaflet-draw-draw-rectangle {
+    height: 0px;
+  }
+
+  .leaflet-draw .leaflet-draw-draw-polygon {
+    height: 0px;
+  }
