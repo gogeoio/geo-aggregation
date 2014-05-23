@@ -35,6 +35,10 @@
   top: 83px;
   left: 5px;
   height: 30px;
+
+  -webkit-box-shadow: -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
+  -moz-box-shadow:    -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
+  box-shadow:         -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
 }
 
 #close-geosearch-result {
@@ -54,8 +58,10 @@
 }
   .leaflet-draw .leaflet-draw-draw-rectangle {
     height: 0px;
+    width: 28px;
   }
 
   .leaflet-draw .leaflet-draw-draw-polygon {
     height: 0px;
+    width: 28px;
   }

@@ -3,7 +3,7 @@ var showDrawbuttons = function() {
   $('.leaflet-draw-draw-rectangle').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw-draw-polygon').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw').animate({'top': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw').animate({'left': '51px'}, {'duration': 200, 'queue': false}, function(){});
+  $('.leaflet-draw').animate({'left': '46px'}, {'duration': 200, 'queue': false}, function(){});
 };
 
 var hideDrawbuttons = function() {
@@ -181,7 +181,7 @@ var initMaps = function() {
 
   addBaseLayer(map);
 
-  // var clusterUrl = "https://{s}.gogeo.io//map/geo_summary/geo_names/{z}/{x}/{y}/cluster.json?mapkey=141bb3be-619a-4ffd-9aab-664ad92e568e",
+  // var clusterUrl = "https://{s}.gogeo.io//map/geo_summary/places/{z}/{x}/{y}/cluster.json?mapkey=141bb3be-619a-4ffd-9aab-664ad92e568e&callback={cb}",
   var clusterUrl = "https://{s}.gogeo.io/map/databases/50kcompanies/{z}/{x}/{y}/cluster.json?mapkey=c5b8c3ca-2e80-46bf-bf51-aa74101c46bb&callback={cb}",
       subdomains = ["m1","m2","m3"];
   
@@ -190,7 +190,6 @@ var initMaps = function() {
 };
 
 initMaps();
-$('.leaflet-draw-draw-rectangle').css('height', '0px');
 
 $(document).on('click', '#geosearch-button',
   function() {
