@@ -1,17 +1,18 @@
-var showDrawbuttons = function() {
-  $('.leaflet-draw-actions').remove();
-  $('.leaflet-draw-draw-rectangle').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw-draw-polygon').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw').animate({'top': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw').animate({'left': '46px'}, {'duration': 200, 'queue': false}, function(){});
-};
+'use strict';
 
-var hideDrawbuttons = function() {
-  $('.leaflet-draw-draw-rectangle').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw-draw-polygon').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw').animate({'top': '28px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw').animate({'left': '3px'}, {'duration': 200, 'queue': false}, function(){});
-};
+var map = null;
+var group = null;
+var polygon = null;
+
+var editableLayers = null;
+
+var databaseName = 'db1';
+var collectionName = 'simplegeo_places_8m';
+var mapkey = '123';
+
+var gogeoUrl = 'https://maps.gogeo.io/';
+// var gogeoUrl = 'http://192.168.88.117:9090/';
+var geoAggUrl = gogeoUrl + 'geoagg';
 
 var addBaseLayer = function(map) {
   var baseLayer = L.tileLayer('http://{s}.maptile.lbs.ovi.com/maptiler/v2/maptile/newest/normal.day.grey/{z}/{x}/{y}/256/png8?token=gBoUkAMoxoqIWfxWA5DuMQ&app_id=mBCJzriKRMXN-4giYVBc', {
@@ -44,76 +45,120 @@ var addCluster = function(clusterUrl, subdomains, group) {
   return cluster;
 };
 
-var getAndShowSumary = function(geojson) {
-  $('#geosearch-result-list').empty();
-  
-  var result = {
-    shop: Math.floor((Math.random() * 10000) + 1),
-    bar: Math.floor((Math.random() * 10000) + 1),
-    restaurant: Math.floor((Math.random() * 10000) + 1),
+var getAgg = function(geojson, points) {
+  var params = {
+    field: 'category',
+    agg_size: 100
   };
 
-  listHtml = [];
-  for (var item in result) {
-    var tr = document.createElement('tr'),
-        td_cat = document.createElement('td'),
-        td_val = document.createElement('td'),
-        span_badges = document.createElement('td');
-
-    td_cat.textContent = item;
-    
-    span_badges.className = "badge";
-    span_badges.textContent = result[item];
-    td_val.appendChild(span_badges);
-    
-    tr.appendChild(td_cat);
-    tr.appendChild(td_val);
-    listHtml.push(tr.outerHTML);
+  if (geojson) {
+    params['geojson'] = geojson;
+  } else {
+    params['points'] = {
+     top_right: points[0],
+     bottom_left: points[1]
+    }
   }
-  
-  listHtml = listHtml.join('\n');
-  $('#geosearch-result-list').append(listHtml);
-};
 
-var featureGroupToGeoJson = function(featureGroup) {
-  var polygons = featureGroup.getLayers();
-
-  var geojson = {};
-  geojson['type'] = 'Polygon';
-  geojson['coordinates'] = [];
-
-  polygons[0]._latlngs.forEach(function(coord) {
-    var latLong = [];
-    latLong.push(coord.lng);
-    latLong.push(coord.lat);
-    
-    geojson['coordinates'].push(latLong);
+  $.ajax({
+    url: geoAggUrl + '/' + databaseName + '/' + collectionName + '?mapkey=' + mapkey,
+    data: JSON.stringify(params),
+    type: 'POST',
+    contentType: 'application/json',
+    crossDomain: true,
+    dataType: 'json',
+    async: true,
+    success: function(data) {
+      updateResultList(data.buckets, data.doc_total);
+    } 
   });
+};
+
+var updateResultList = function(result, total) {
+  $('#geosearch-result-list').empty();
+  $('#geosearch-result-qtd').empty();
+
+  var firsts = [];
+  var others = [];
+
+  if (result.length >= 10) {
+    firsts = result.slice(0, 9);
+    others = result.slice(9, result.length);
+  } else {
+    firsts = result;
+  }
+
+  var listHtml = [];
+
+  for (var i = 0; i < firsts.length; i++) {
+    var item = firsts[i];
+    var itemHtml = getItemHtml(item);
+    listHtml.push(itemHtml);
+  }
+
+  var othersSum = 0;
+  for (var i = 0; i < others.length; i++) {
+    var item = others[i];
+    othersSum = othersSum + item.doc_count;
+  }
+
+  if (othersSum > 0) {
+    var othersHtml = getItemHtml({key: 'Others', doc_count: othersSum});
+    listHtml.push(othersHtml);
+  }
+
+  listHtml = listHtml.join('\n');
+
+  $('#geosearch-result-list').append(listHtml);
+  $('#geosearch-result-qtd').html('<b>' + total + '</b>');
+};
+
+var getItemHtml = function(item) {
+  var tr = document.createElement('tr'),
+      tdCat = document.createElement('td'),
+      tdVal = document.createElement('td'),
+      spanBadges = document.createElement('td');
+
+  tdCat.textContent = item.key;
+
+  spanBadges.className = 'badge';
+  spanBadges.textContent = item.doc_count;
+  spanBadges.style.marginTop = '4px';
+  tdVal.appendChild(spanBadges);
+
+  tr.appendChild(tdCat);
+  tr.appendChild(tdVal);
+  return tr.outerHTML;
+}
+
+var featureGroupToGeoJson = function(layer) {
+  var geojson = {
+    type: 'Polygon',
+    coordinates: []
+  };
+
+  var pointsAux = layer._latlngs;
+
+  var ne = [pointsAux[2].lat, pointsAux[2].lng];
+  var sw = [pointsAux[0].lat, pointsAux[0].lng];
+
+  var points = [
+    ne,
+    [ne[0], sw[1]],
+    sw,
+    [sw[0], ne[1]]
+  ];
+
+  geojson['coordinates'] = points;
 
   return geojson;
 };
 
-var boundsToGeoJson = function(bounds) {
-  var geojson = {};
-  geojson['type'] = 'Polygon';
+var getNeSwPoints = function(bounds) {
+  var ne = [bounds._northEast.lat, bounds._northEast.lng];
+  var sw = [bounds._southWest.lat, bounds._southWest.lng];
 
-  var coords = [];
-  
-  var coord = bounds.getSouthWest();
-  coords[0] = [coord.lng, coord.lat];
-
-  coord = bounds.getNorthEast();
-  coords[1] = [coord.lng, coord.lat];
-
-  coord = bounds.getNorthWest();
-  coords[2] = [coord.lng, coord.lat];
-
-  coord = bounds.getSouthEast();
-  coords[3] = [coord.lng, coord.lat];
-
-  geojson['coordinates'] = coords;
-
-  return geojson;
+  return [ne, sw];
 };
 
 var addControls = function(map) {
@@ -127,10 +172,10 @@ var addControls = function(map) {
       polygon: {
         allowIntersection: false, // Restricts shapes to simple polygons
         drawError: {
-          color: '#e1e100'
+          color: '#E1E100'
         },
         shapeOptions: {
-          color: '#bada55'
+          color: '#BADA55'
         }
       },
       circle: false, // Turns off this drawing tool
@@ -153,8 +198,19 @@ var addControls = function(map) {
           layer = e.layer;
 
       editableLayers.addLayer(layer);
-      var geojson = featureGroupToGeoJson(editableLayers);
-      getAndShowSumary(geojson);
+
+      var geojson = null;
+      var geometry = null;
+      var points = null;
+
+      if (type === 'polygon') {
+        geojson = editableLayers.toGeoJSON();
+        geometry = geojson.features[0].geometry;
+      } else {
+        points = getNeSwPoints(layer.getBounds());
+      }
+
+      getAgg(geometry, points);
     }
   );
 
@@ -167,26 +223,43 @@ var addControls = function(map) {
   map.on('moveend', function(e) {
     var layersDrawn = editableLayers.getLayers();
     
-    if(layersDrawn.length == 0) {
+    if (layersDrawn.length == 0) {
       var bounds = map.getBounds();
-      var geojson = boundsToGeoJson(bounds);
-      getAndShowSumary(geojson);
+      var points = getNeSwPoints(bounds);
+
+      getAgg(null, points);
     }
   });
 };
 
+var addTileLayer = function(url, subdomains) {
+  var options = {
+    maxZoom: 18
+  };
+
+  if (subdomains) {
+    options.subdomains = subdomains
+  }
+
+  var layer = L.tileLayer(url, options);
+  group.addLayer(layer);
+};
+
 var initMaps = function() {
-  map = L.map('map').setView([-10, -55], 5);
+  map = L.map('map').setView([38.513788, -98.092804], 4);
   group = new L.LayerGroup().addTo(map);
 
   addBaseLayer(map);
 
-  // var clusterUrl = "https://{s}.gogeo.io//map/geo_summary/places/{z}/{x}/{y}/cluster.json?mapkey=141bb3be-619a-4ffd-9aab-664ad92e568e&callback={cb}",
-  var clusterUrl = "https://{s}.gogeo.io/map/databases/50kcompanies/{z}/{x}/{y}/cluster.json?mapkey=c5b8c3ca-2e80-46bf-bf51-aa74101c46bb&callback={cb}",
-      subdomains = ["m1","m2","m3"];
-  
+  var clusterUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/cluster.json?mapkey=' + mapkey + '&callback={cb}',
+      subdomains = ['m1', 'm2', 'm3'];
   addCluster(clusterUrl, subdomains, group);
+
   addControls(map);
+  
+  var bounds = map.getBounds();
+  var points = getNeSwPoints(bounds);
+  getAgg(null, points);
 };
 
 initMaps();
@@ -202,3 +275,18 @@ $(document).on('click', '#geosearch-button',
     }
   }
 );
+
+var showDrawbuttons = function() {
+  $('.leaflet-draw-actions').remove();
+  $('.leaflet-draw-draw-rectangle').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw-draw-polygon').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw').animate({'top': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw').animate({'left': '46px'}, {'duration': 200, 'queue': false}, function(){});
+};
+
+var hideDrawbuttons = function() {
+  $('.leaflet-draw-draw-rectangle').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw-draw-polygon').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw').animate({'top': '28px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw').animate({'left': '3px'}, {'duration': 200, 'queue': false}, function(){});
+};

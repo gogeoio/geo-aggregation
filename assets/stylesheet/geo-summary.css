@@ -1,6 +1,6 @@
 #geosearch-result-div {
-  width: 400px;
-  height: 250px;
+  width: 335px;
+  height: 480px;
   position: absolute;
   z-index: 1001;
   right: 3px;
@@ -8,7 +8,6 @@
   background: white;
   border-radius: 10px;
   opacity: 0.8;
-
 }
 
 #geosearch-result-div tr { 
@@ -56,12 +55,18 @@
   top: 28px;
 
 }
-  .leaflet-draw .leaflet-draw-draw-rectangle {
-    height: 0px;
-    width: 28px;
-  }
 
-  .leaflet-draw .leaflet-draw-draw-polygon {
-    height: 0px;
-    width: 28px;
-  }
+.leaflet-draw .leaflet-draw-draw-rectangle {
+  height: 0px;
+  width: 28px;
+}
+
+.leaflet-draw .leaflet-draw-draw-polygon {
+  height: 0px;
+  width: 28px;
+}
+
+#geosearch-result-qtd {
+  margin-top: 5px;
+  margin-right: -20px;
+}
