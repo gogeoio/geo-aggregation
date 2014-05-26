@@ -11,7 +11,6 @@ var collectionName = 'simplegeo_places_8m';
 var mapkey = '123';
 
 var gogeoUrl = 'https://maps.gogeo.io/';
-// var gogeoUrl = 'http://192.168.88.117:9090/';
 var geoAggUrl = gogeoUrl + 'geoagg';
 
 var addBaseLayer = function(map) {
