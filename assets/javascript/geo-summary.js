@@ -6,9 +6,11 @@ var polygon = null;
 
 var editableLayers = null;
 
-var databaseName = 'db1';
-var collectionName = 'simplegeo_places_8m';
-var mapkey = '123';
+var databaseName = 'geo_summary';
+var collectionName = 'places_us';
+var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
+
+var cluster = null;
 
 var gogeoUrl = 'https://maps.gogeo.io/';
 var geoAggUrl = gogeoUrl + 'geoagg';
@@ -68,14 +70,22 @@ var getAgg = function(geojson, points) {
     dataType: 'json',
     async: true,
     success: function(data) {
-      updateResultList(data.buckets, data.doc_total);
+      if (data && data.buckets && data.doc_total) {
+        updateResultList(data.buckets, data.doc_total);
+      } else {
+        emptyResultList();
+      }
     } 
   });
 };
 
-var updateResultList = function(result, total) {
+var emptyResultList = function() {
   $('#geosearch-result-list').empty();
   $('#geosearch-result-qtd').empty();
+};
+
+var updateResultList = function(result, total) {
+  emptyResultList();
 
   var firsts = [];
   var others = [];
@@ -168,15 +178,16 @@ var addControls = function(map) {
     position: 'topleft',
     draw: {
       polyline: false,
-      polygon: {
-        allowIntersection: false, // Restricts shapes to simple polygons
-        drawError: {
-          color: '#E1E100'
-        },
-        shapeOptions: {
-          color: '#BADA55'
-        }
-      },
+      polygon: false,
+      // polygon: {
+      //   allowIntersection: false, // Restricts shapes to simple polygons
+      //   drawError: {
+      //     color: '#E1E100'
+      //   },
+      //   shapeOptions: {
+      //     color: '#BADA55'
+      //   }
+      // },
       circle: false, // Turns off this drawing tool
       rectangle: {
         shapeOptions: {
@@ -209,6 +220,7 @@ var addControls = function(map) {
         points = getNeSwPoints(layer.getBounds());
       }
 
+      console.log('points', JSON.stringify(points));
       getAgg(geometry, points);
     }
   );
@@ -245,7 +257,7 @@ var addTileLayer = function(url, subdomains) {
 };
 
 var initMaps = function() {
-  map = L.map('map').setView([38.513788, -98.092804], 4);
+  map = L.map('map', {minZoom: 4, maxZoom: 14}).setView([54.367759, -105.695343], 4);
   group = new L.LayerGroup().addTo(map);
 
   addBaseLayer(map);
@@ -278,14 +290,14 @@ $(document).on('click', '#geosearch-button',
 var showDrawbuttons = function() {
   $('.leaflet-draw-actions').remove();
   $('.leaflet-draw-draw-rectangle').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw-draw-polygon').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw').animate({'top': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw').animate({'left': '46px'}, {'duration': 200, 'queue': false}, function(){});
+  // $('.leaflet-draw-draw-polygon').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw').animate({'top': '13px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw').animate({'left': '35px'}, {'duration': 200, 'queue': false}, function(){});
 };
 
 var hideDrawbuttons = function() {
   $('.leaflet-draw-draw-rectangle').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  $('.leaflet-draw-draw-polygon').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
+  // $('.leaflet-draw-draw-polygon').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw').animate({'top': '28px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw').animate({'left': '3px'}, {'duration': 200, 'queue': false}, function(){});
 };
