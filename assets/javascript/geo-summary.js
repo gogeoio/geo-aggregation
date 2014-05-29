@@ -32,7 +32,7 @@ var addCluster = function(clusterUrl, subdomains, group) {
     subdomains: subdomains,
     useJsonP: true,
     calculateClusterQtd: function(zoom) {
-      if (zoom >= 5) {
+      if (zoom >= 6) {
         return 2;
       } else {
         return 1;

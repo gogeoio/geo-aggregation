@@ -338,12 +338,14 @@ L.TileCluster = L.Class.extend({
     var childCount = cluster.count;
 
     var c = ' marker-cluster-';
-    if (childCount < 10) {
+    if (childCount < 100) {
       c += 'small';
-    } else if (childCount < 100) {
+    } else if (childCount < 10000) {
       c += 'medium';
-    } else {
+    } else if (childCount < 100000) {
       c += 'large';
+    } else {
+      c += 'extra-large';
     }
 
     var iconPoint = new L.Point(40, 40);
