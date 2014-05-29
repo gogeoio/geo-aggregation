@@ -220,7 +220,6 @@ var addControls = function(map) {
         points = getNeSwPoints(layer.getBounds());
       }
 
-      console.log('points', JSON.stringify(points));
       getAgg(geometry, points);
     }
   );
@@ -274,18 +273,34 @@ var initMaps = function() {
   addCluster(clusterUrl, subdomains, group);
 
   addControls(map);
-  
-  L.control.attribution ({
-    prefix: false,
-    position: 'bottomright'
-  }).addAttribution('<a target="_blank" href="http://gogeo.io">GoGeo</a>').addTo(map);
+  addAttribution(map);
+  configureSize();
 
   var bounds = map.getBounds();
   var points = getNeSwPoints(bounds);
   getAgg(null, points);
 };
 
-initMaps();
+var addAttribution = function(map) {
+  var gogeoAttribution = '<a target="_blank" href="http://gogeo.io">GoGeo</a>';
+  var leafletAttribution = '<a target="_blank" href="http://leafletjs.com">Leaflet</a>';
+  var attribution = gogeoAttribution + ' | ' + leafletAttribution;
+
+  L.control.attribution ({
+    prefix: false,
+    position: 'bottomright'
+  }).addAttribution(attribution).addTo(map);
+};
+
+var configureSize = function() {
+  var innerHeight = window.innerHeight;
+
+  $('#map').css('height', innerHeight + 'px');
+
+  var bounds = map.getBounds();
+  var points = getNeSwPoints(bounds);
+  getAgg(null, points);
+};
 
 $(document).on('click', '#geosearch-button',
   function() {
@@ -313,3 +328,11 @@ var hideDrawbuttons = function() {
   $('.leaflet-draw').animate({'top': '28px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw').animate({'left': '3px'}, {'duration': 200, 'queue': false}, function(){});
 };
+
+$(window).resize(
+  function() {
+    configureSize();
+  }
+);
+
+initMaps();
