@@ -12,8 +12,8 @@ var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
 
 var cluster = null;
 
-var gogeoUrl = 'https://maps.gogeo.io/';
-var geoAggUrl = gogeoUrl + 'geoagg';
+var gogeoUrl = 'https://{s}.gogeo.io';
+var geoAggUrl = 'https://maps.gogeo.io/geoagg';
 
 var addBaseLayer = function(map) {
   var baseLayer = L.tileLayer('http://{s}.maptile.lbs.ovi.com/maptiler/v2/maptile/newest/normal.day.grey/{z}/{x}/{y}/256/png8?token=gBoUkAMoxoqIWfxWA5DuMQ&app_id=mBCJzriKRMXN-4giYVBc', {
@@ -257,7 +257,14 @@ var addTileLayer = function(url, subdomains) {
 };
 
 var initMaps = function() {
-  map = L.map('map', {minZoom: 4, maxZoom: 14}).setView([54.367759, -105.695343], 4);
+  var options = {
+    attributionControl: false,
+    minZoom: 4,
+    maxZoom: 14
+  };
+
+  map = L.map('map', options).setView([54.367759, -105.695343], 4);
+
   group = new L.LayerGroup().addTo(map);
 
   addBaseLayer(map);
@@ -268,6 +275,11 @@ var initMaps = function() {
 
   addControls(map);
   
+  L.control.attribution ({
+    prefix: false,
+    position: 'bottomright'
+  }).addAttribution('<a target="_blank" href="http://gogeo.io">GoGeo</a>').addTo(map);
+
   var bounds = map.getBounds();
   var points = getNeSwPoints(bounds);
   getAgg(null, points);
