@@ -7,7 +7,7 @@ var polygon = null;
 var editableLayers = null;
 
 var databaseName = 'geo_summary';
-var collectionName = 'places_us';
+var collectionName = 'places_us_4m';
 var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
 
 var cluster = null;
