@@ -1,2 +1,2 @@
-geo-summary
+geo-aggregation
 ===========

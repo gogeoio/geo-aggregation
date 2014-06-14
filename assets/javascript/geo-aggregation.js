@@ -7,24 +7,13 @@ var polygon = null;
 var editableLayers = null;
 
 var databaseName = 'geo_summary';
-var collectionName = 'places_us';
+var collectionName = 'places_us_4m';
 var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
 
 var cluster = null;
 
 var gogeoUrl = 'https://{s}.gogeo.io';
 var geoAggUrl = 'https://maps.gogeo.io/geoagg';
-
-var addBaseLayer = function(map) {
-  var baseLayer = L.tileLayer('http://{s}.maptile.lbs.ovi.com/maptiler/v2/maptile/newest/normal.day.grey/{z}/{x}/{y}/256/png8?token=gBoUkAMoxoqIWfxWA5DuMQ&app_id=mBCJzriKRMXN-4giYVBc', {
-      subdomains: '123',
-      maxZoom: 14
-  });
-
-  map.addLayer(baseLayer);
-
-  return baseLayer;
-};
 
 var addCluster = function(clusterUrl, subdomains, group) {
   var options = {
@@ -101,7 +90,7 @@ var updateResultList = function(result, total) {
 
   for (var i = 0; i < firsts.length; i++) {
     var item = firsts[i];
-    var itemHtml = getItemHtml(item);
+    var itemHtml = getItemHtml(item, total);
     listHtml.push(itemHtml);
   }
 
@@ -112,31 +101,62 @@ var updateResultList = function(result, total) {
   }
 
   if (othersSum > 0) {
-    var othersHtml = getItemHtml({key: 'Others', doc_count: othersSum});
+    var othersHtml = getItemHtml({key: 'Others', doc_count: othersSum}, total);
     listHtml.push(othersHtml);
   }
 
   listHtml = listHtml.join('\n');
 
+  var totalHtml = $.number(total, 0, '.', '.');
+
   $('#geosearch-result-list').append(listHtml);
-  $('#geosearch-result-qtd').html('<b>' + total + '</b>');
+  $('#geosearch-result-qtd').html(totalHtml);
 };
 
-var getItemHtml = function(item) {
+var getItemHtml = function(item, total) {
   var tr = document.createElement('tr'),
       tdCat = document.createElement('td'),
-      tdVal = document.createElement('td'),
-      spanBadges = document.createElement('td');
+      spanBadges = document.createElement('td'),
+      divResult = document.createElement('div'),
+      divRow = document.createElement('div'),
+      divProgress = document.createElement('div'),
+      divProgressBar = document.createElement('div'),
+      labelNameBar = document.createElement('div'),
+      labelValueBar = document.createElement('div')
+    ;
 
-  tdCat.textContent = item.key;
+  var percent = (item.doc_count * 100) / total;
+  percent = $.number(percent, 2);
 
-  spanBadges.className = 'badge';
-  spanBadges.textContent = item.doc_count;
-  spanBadges.style.marginTop = '4px';
-  tdVal.appendChild(spanBadges);
+  divResult.setAttribute('class', 'container result');
+  divRow.setAttribute('class', 'row');
+  divProgress.setAttribute('class', 'progress');
+
+  divProgressBar.setAttribute('class', 'progress-bar');
+  divProgressBar.setAttribute('role', 'progressbar');
+  divProgressBar.setAttribute('aria-valuenow', percent);
+  divProgressBar.setAttribute('aria-valuemin', '0');
+  divProgressBar.setAttribute('aria-valuemax', '100');
+  divProgressBar.style.width = percent + '%';
+
+  labelNameBar.setAttribute('class', 'col-md-6 label-name');
+  labelNameBar.textContent = item.key;
+
+  var valueBarHtml = $.number(item.doc_count, 0, '.', '.');
+  valueBarHtml += ' ( ' + percent + '% )';
+
+  labelValueBar.setAttribute('class', 'col-md-6 label-value');
+  labelValueBar.textContent = valueBarHtml;
+
+  divProgressBar.appendChild(labelNameBar);
+  divProgressBar.appendChild(labelValueBar);
+
+  divProgress.appendChild(divProgressBar);
+  divRow.appendChild(divProgress);
+  divResult.appendChild(divRow);
+  tdCat.appendChild(divResult);
 
   tr.appendChild(tdCat);
-  tr.appendChild(tdVal);
   return tr.outerHTML;
 }
 
@@ -170,6 +190,39 @@ var getNeSwPoints = function(bounds) {
   return [ne, sw];
 };
 
+var addResetButton = function() {
+  var resetButton = document.createElement('a');
+  
+  resetButton.setAttribute('id', 'resetButton');
+  resetButton.setAttribute('class', 'leaflet-draw-edit-remove leaflet-disabled');
+  resetButton.setAttribute('href', '#');
+  resetButton.setAttribute('title', 'Reset area');
+
+  var drawToolbar = $('.leaflet-draw-toolbar.leaflet-bar.leaflet-draw-toolbar-top');
+  drawToolbar.append(resetButton);
+
+  $('#resetButton').on('click',
+    function(event) {
+      if ($('#resetButton').prop('class').match('leaflet-disabled')) {
+        event.preventDefault();
+        return;
+      } else {
+        editableLayers.clearLayers();
+        toggleResetButton(false);
+        reloadGeoAggWithMappBounds();
+      }
+    }
+  );
+};
+
+var toggleResetButton = function(enable) {
+  if (enable) {
+    $('#resetButton').prop('class', 'leaflet-draw-edit-remove');
+  } else {
+    $('#resetButton').prop('class', 'leaflet-draw-edit-remove leaflet-disabled');
+  }
+};
+
 var addControls = function(map) {
   editableLayers = new L.FeatureGroup();
   map.addLayer(editableLayers);
@@ -179,28 +232,23 @@ var addControls = function(map) {
     draw: {
       polyline: false,
       polygon: false,
-      // polygon: {
-      //   allowIntersection: false, // Restricts shapes to simple polygons
-      //   drawError: {
-      //     color: '#E1E100'
-      //   },
-      //   shapeOptions: {
-      //     color: '#BADA55'
-      //   }
-      // },
       circle: false, // Turns off this drawing tool
       rectangle: {
         shapeOptions: {
-          clickable: true
+          clickable: false
         }
       },
       marker: false
-    },
-    edit: false
+    }
   };
+
+  // Set the text for the rectangle
+  L.drawLocal.draw.toolbar.buttons.rectangle = 'Draw an area';
 
   var drawControl = new L.Control.Draw(options);
   map.addControl(drawControl);
+
+  addResetButton();
 
   map.on('draw:created',
     function(e) {
@@ -220,6 +268,7 @@ var addControls = function(map) {
         points = getNeSwPoints(layer.getBounds());
       }
 
+      toggleResetButton(true);
       getAgg(geometry, points);
     }
   );
@@ -227,6 +276,7 @@ var addControls = function(map) {
   map.on('draw:drawstart',
     function(e) {
       editableLayers.clearLayers();
+      toggleResetButton(false);
     }
   );
 
@@ -266,7 +316,8 @@ var initMaps = function() {
 
   group = new L.LayerGroup().addTo(map);
 
-  addBaseLayer(map);
+  var ggl = new L.Google('ROADMAP', options);
+  map.addLayer(ggl);
 
   var clusterUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/cluster.json?mapkey=' + mapkey + '&callback={cb}',
       subdomains = ['m1', 'm2', 'm3'];
@@ -297,6 +348,10 @@ var configureSize = function() {
 
   $('#map').css('height', innerHeight + 'px');
 
+  reloadGeoAggWithMappBounds();
+};
+
+var reloadGeoAggWithMappBounds = function() {
   var bounds = map.getBounds();
   var points = getNeSwPoints(bounds);
   getAgg(null, points);
@@ -324,7 +379,7 @@ var showDrawbuttons = function() {
 
 var hideDrawbuttons = function() {
   $('.leaflet-draw-draw-rectangle').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  // $('.leaflet-draw-draw-polygon').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
+  // $('.leaflet-draw-draw-polygon').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){});
   $('.leaflet-draw').animate({'top': '28px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw').animate({'left': '3px'}, {'duration': 200, 'queue': false}, function(){});
 };

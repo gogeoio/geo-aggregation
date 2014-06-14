@@ -1,0 +1,86 @@
+#geosearch-result-div {
+  width: 335px;
+  height: 530px;
+  position: absolute;
+  z-index: 1001;
+  right: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 10px;
+  opacity: 0.8;
+}
+
+#geosearch-result-div #geosearch-result .geosearch-result-title {
+  margin: -25px 0px 5px 10px;
+}
+
+#geosearch-result-div #geosearch-result .geosearch-result-subtitle {
+  margin: -15px 0px 0px 20px;
+}
+
+#geosearch-result-div #geosearch-result .geosearch-result-by {
+  margin: -10px 0px 0px 120px;
+}
+
+#geosearch-result-div tr {
+  border: solid;
+  border-width: 1px 0;
+  border-style: dashed;
+  border-color: #b6b5b5;
+}
+
+#geosearch-result-div td {
+  padding: 8px;
+}
+
+#geosearch-result-div tr {
+  border: none;
+}
+
+#reset-search {
+  position: absolute;
+  z-index: 1001;
+  top: 83px;
+  left: 5px;
+  height: 30px;
+
+  -webkit-box-shadow: -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
+  -moz-box-shadow:    -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
+  box-shadow:         -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
+}
+
+#close-geosearch-result {
+  margin-top: -31px;
+  margin-right: 51px;
+}
+
+#geosearch-result-list {
+  width: 300px;
+}
+
+#geosearch-result-list tr td .result {
+  width: 100%;
+  height: 22px;
+}
+
+#geosearch-result-qtd {
+  margin-top: 5px;
+  margin-right: -20px;
+}
+
+.progress {
+  position: relative;
+}
+
+.progress .label-name {
+  position: absolute;
+  display: block;
+  color: black;
+}
+
+.progress .label-value {
+  position: absolute;
+  display: block;
+  left: 160px;
+  color: black;
+}
