@@ -107,7 +107,7 @@ var updateResultList = function(result, total) {
 
   listHtml = listHtml.join('\n');
 
-  var totalHtml = $.number(total, 0, '.', '.');
+  var totalHtml = '<b>' + $.number(total, 0, '.', '.') + '</b>';
 
   $('#geosearch-result-list').append(listHtml);
   $('#geosearch-result-qtd').html(totalHtml);
