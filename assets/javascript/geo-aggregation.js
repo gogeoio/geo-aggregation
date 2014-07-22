@@ -6,20 +6,14 @@ var polygon = null;
 
 var editableLayers = null;
 
-// var databaseName = 'geo_summary';
-var databaseName = 'db1';
-// var collectionName = 'places_us_4m';
-var collectionName = 'places_50k';
-// var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
-var mapkey = '123';
+var databaseName = 'geo_summary';
+var collectionName = 'places_us_4m';
+var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
 
 var cluster = null;
 
-// var gogeoUrl = 'https://{s}.gogeo.io';
-// var geoAggUrl = 'https://maps.gogeo.io/geoagg';
-
-var gogeoUrl = 'http://127.0.0.1:9090';
-var geoAggUrl = 'http://127.0.0.1:9090/geoagg';
+var gogeoUrl = 'https://{s}.gogeo.io';
+var geoAggUrl = 'https://maps.gogeo.io/geoagg';
 
 var addCluster = function(clusterUrl, subdomains, group) {
   var options = {
