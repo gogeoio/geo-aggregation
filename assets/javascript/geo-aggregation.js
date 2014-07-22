@@ -6,14 +6,20 @@ var polygon = null;
 
 var editableLayers = null;
 
-var databaseName = 'geo_summary';
-var collectionName = 'places_us_4m';
-var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
+// var databaseName = 'geo_summary';
+var databaseName = 'db1';
+// var collectionName = 'places_us_4m';
+var collectionName = 'places_50k';
+// var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
+var mapkey = '123';
 
 var cluster = null;
 
-var gogeoUrl = 'https://{s}.gogeo.io';
-var geoAggUrl = 'https://maps.gogeo.io/geoagg';
+// var gogeoUrl = 'https://{s}.gogeo.io';
+// var geoAggUrl = 'https://maps.gogeo.io/geoagg';
+
+var gogeoUrl = 'http://127.0.0.1:9090';
+var geoAggUrl = 'http://127.0.0.1:9090/geoagg';
 
 var addCluster = function(clusterUrl, subdomains, group) {
   var options = {
@@ -309,10 +315,16 @@ var initMaps = function() {
   var options = {
     attributionControl: false,
     minZoom: 4,
-    maxZoom: 14
+    maxZoom: 14,
+    zoom: 4,
+    center: [32.54, -99.49],
+    maxBounds: [
+      [84.67351256610522, -174.0234375],
+      [-57.13, 83.32]
+    ]
   };
 
-  map = L.map('map', options).setView([54.367759, -105.695343], 4);
+  map = L.map('map', options);
 
   group = new L.LayerGroup().addTo(map);
 
