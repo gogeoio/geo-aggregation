@@ -9,9 +9,9 @@ This is a plugin made based on:
 
 */
 
-'use strict'
+'use strict';
 
-L.Util.ajax = function (url, cb) {
+L.Util.ajax = function(url, zoom, callback) {
   // the following is from JavaScript: The Definitive Guide
   // and https://developer.mozilla.org/en-US/docs/DOM/XMLHttpRequest/Using_XMLHttpRequest_in_IE6
   if (window.XMLHttpRequest === undefined) {
@@ -28,7 +28,7 @@ L.Util.ajax = function (url, cb) {
 
   var response, request = new XMLHttpRequest();
   request.open("GET", url);
-  request.onreadystatechange = function () {
+  request.onreadystatechange = function() {
     /*jshint evil: true */
     if (request.readyState === 4 && request.status === 200) {
       if (window.JSON) {
@@ -36,7 +36,8 @@ L.Util.ajax = function (url, cb) {
       } else {
         response = eval("(" + request.responseText + ")");
       }
-      cb(response);
+
+      callback(response, zoom)
     }
   };
   request.send();
@@ -50,7 +51,7 @@ L.TileCluster = L.Class.extend({
     maxZoom: 18,
     tileSize: 256,
 
-    useJsonP: true,
+    useJsonP: false,
     pointerCursor: true
   },
 
@@ -117,8 +118,8 @@ L.TileCluster = L.Class.extend({
 
     this._group.on('mouseover', this._drawConvexHull, this);
     this._group.on('mouseout', this._removeConvexHull, this);
-    map.on('moveend', this._update, this);
-    map.on('zoomend', this._update, this);
+    this._map.on('moveend', this._update, this);
+    this._map.on('zoomend', this._update, this);
   },
 
   _update: function () {
@@ -161,7 +162,7 @@ L.TileCluster = L.Class.extend({
             this._loadTile(zoom, xw, yw);
           }
         } else {
-          this._drawCluster(this._cache[key], this, key);
+          this._drawCluster(this._cache[key], this, key, zoom);
         }
       }
     }
@@ -184,14 +185,19 @@ L.TileCluster = L.Class.extend({
     }, this.options));
 
     var script = document.createElement('script');
-    script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", url);
+    script.setAttribute('type', 'text/javascript');
+    script.setAttribute('src', url);
 
-    window[wk][functionName] = function (data) {
+    window[wk][functionName] = function(data, zoom) {
       self._cache[key] = data;
       delete window[wk][functionName];
       head.removeChild(script);
-      self._drawCluster(data, self, key);
+
+      if (!zoom) {
+        zoom = self._map.getZoom();
+      }
+
+      self._drawCluster(data, self, key, zoom);
     };
 
     head.appendChild(script);
@@ -208,10 +214,10 @@ L.TileCluster = L.Class.extend({
 
     var key = zoom + '_' + x + '_' + y;
     var self = this;
-    L.Util.ajax(url,
-      function (data) {
+    L.Util.ajax(url, zoom,
+      function(data, zoom) {
         self._cache[key] = data;
-        self._drawCluster(data, self, key);
+        self._drawCluster(data, self, key, zoom);
       }
     );
   },
@@ -229,6 +235,8 @@ L.TileCluster = L.Class.extend({
     if (this.options.pointerCursor) {
       this._container.style.cursor = '';
     }
+    
+    this._map.removeLayer(this._group);
   },
 
   _removeConvexHull: function() {
@@ -246,8 +254,9 @@ L.TileCluster = L.Class.extend({
     this._group.clearLayers();
   },
 
-  _drawCluster: function(data, self, key) {
-    if (data && data[0]) {
+  _drawCluster: function(data, self, key, zoom) {
+    // Check if the zoom of cluster is the same of map
+    if (data && data[0] && zoom == this._map.getZoom()) {
       for (var i in data) {
         var cluster = data[i];
         var coords = cluster.coords;
@@ -316,8 +325,6 @@ L.TileCluster = L.Class.extend({
     string = string.replace(')', '');
     string = string.replace(')', '');
     string = string.trim();
-
-    // console.log('string', string);
 
     var points = string.split(',');
     var lls = [];

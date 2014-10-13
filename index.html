@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="assets/stylesheet/geo-aggregation.css" />
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/stylesheet/bootstrap-tour/bootstrap-tour-standalone.min.css" />
   </head>
   <body>
     <div id="map" style="width: auto; height: 960px"></div>
@@ -32,9 +33,6 @@
         <div class="geoagg-result-title">
           <div class="row">
             <div class="col-md-3 col-md-offset-3">
-              <!-- <h4>
-                Dashboard
-              </h4> -->
             </div>
             <div class="col-md-3 col-md-offset-1" style="right: -10px;">
               <a href="http://gogeo.io" target="_blank">
@@ -57,7 +55,7 @@
         <div class="geoagg-result-by">
           <div class="row">
             <h5>
-                <b>Companies By Category</b>
+                <b>Companies by Business Category</b>
             </h5>
           </div>
         </div>
@@ -70,7 +68,7 @@
           </div>
           <div class="row" style="margin-top: -15px;">
             <p>
-              <div class="col-md-8 col-md-offset-2">
+              <div class="col-md-12 col-md-offset-2">
                 <b>4 Million Companies in USA</b>
               </div>
             </p>
@@ -87,7 +85,20 @@
         </div>
       </div>
     </div>
-    
+
+    <ol class="joyride-list" id="tourTips" data-joyride>
+      <li data-id="leaflet-control" data-options="tip_location: top;">
+        <div class="container">
+          <div class="row-fluid">
+            <span>Try draw a spatial restriction!</span>
+          </div>
+        </div>
+      </li>
+      <li data-id="geoagg-result-div" data-button="End">
+        <h3>Dashboard tip</h3>
+      </li>
+    </ol>
+
     <script src="assets/javascript/jquery-1.11.1.min.js"></script>
     <script src="assets/javascript/jquery.number.min.js"></script>
     <script src="assets/javascript/leaflet/leaflet.js"></script>
@@ -95,18 +106,21 @@
     <script src="assets/javascript/leaflet/leaflet.tilecluster.js"></script>
     <script src="http://maps.google.com/maps/api/js?v=3.2&sensor=false"></script>
     <script type="text/javascript" src="assets/javascript/leaflet-plugins/layer/tile/Google.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="assets/javascript/bootstrap-tour/bootstrap-tour-standalone.min.js"></script>
     <script src="assets/javascript/geo-aggregation.js"></script>
 
     <script>
       if (window.location.hostname.match('demos.gogeo.io')) {
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        var _gaq = _gaq || [];
 
-        ga('create', 'UA-51416381-2', 'gogeo.io');
-        ga('send', 'pageview');
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        _gaq.push(['_setAccount', 'UA-51416381-2', 'gogeo.io']);
+        _gaq.push(['_trackPageview']);
       }
     </script>
   </body>

@@ -3,9 +3,12 @@
 var map = null;
 var group = null;
 var polygon = null;
+var geometry = null;
 
+var pngLayer = null;
+var pngUrl = null;
+var clusterLayer = null;
 var clusterUrl = null;
-var subdomains = null;
 
 var editableLayers = null;
 
@@ -13,12 +16,11 @@ var databaseName = 'geo_summary';
 var collectionName = 'places_us_4m';
 var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
 
-var cluster = null;
-
 var gogeoUrl = 'https://{s}.gogeo.io';
 var geoAggUrl = 'https://maps.gogeo.io/geoagg';
+var subdomains = ['m1', 'm2', 'm3'];
 
-var addCluster = function(geometry) {
+var addClusterLayer = function() {
   var url = clusterUrl;
   if (geometry) {
     url = url + '&geom=' + JSON.stringify(geometry);
@@ -29,7 +31,7 @@ var addCluster = function(geometry) {
   var options = {
     maxZoom: 18,
     subdomains: subdomains,
-    useJsonP: true,
+    useJsonP: false,
     calculateClusterQtd: function(zoom) {
       if (zoom >= 6) {
         return 2;
@@ -39,10 +41,30 @@ var addCluster = function(geometry) {
     }
   };
 
-  cluster = L.tileCluster(url, options);
-  group.addLayer(cluster);
+  clusterLayer = L.tileCluster(url, options);
+  group.addLayer(clusterLayer);
 
-  return cluster;
+  return clusterLayer;
+};
+
+var addPngLayer = function() {
+  var url = pngUrl;
+
+  if (geometry) {
+    url = url + '&geom=' + JSON.stringify(geometry);
+  }
+
+  group.clearLayers();
+
+  var options = {
+    maxZoom: 18,
+    subdomains: subdomains
+  };
+
+  pngLayer = L.tileLayer(url, options);
+  group.addLayer(pngLayer);
+
+  return pngLayer;
 };
 
 var getAgg = function(geojson, points) {
@@ -52,13 +74,15 @@ var getAgg = function(geojson, points) {
   };
 
   if (geojson) {
-    params['geojson'] = geojson;
+    params['geom'] = geojson;
   } else {
     params['points'] = {
      top_right: points[0],
      bottom_left: points[1]
     }
   }
+
+  emptyResultList();
 
   $.ajax({
     url: geoAggUrl + '/' + databaseName + '/' + collectionName + '?mapkey=' + mapkey,
@@ -171,8 +195,8 @@ var getItemHtml = function(item, total) {
 }
 
 var getNeSwPoints = function(bounds) {
-  var ne = [bounds._northEast.lat, bounds._northEast.lng];
-  var sw = [bounds._southWest.lat, bounds._southWest.lng];
+  var ne = [bounds._northEast.lng, bounds._northEast.lat];
+  var sw = [bounds._southWest.lng, bounds._southWest.lat];
 
   return [ne, sw];
 };
@@ -197,6 +221,8 @@ var addResetButton = function() {
         editableLayers.clearLayers();
         toggleResetButton(false);
         reloadGeoAggWithMappBounds();
+        group.clearLayers();
+        showLayer();
       }
     }
   );
@@ -245,7 +271,7 @@ var addControls = function(map) {
       editableLayers.addLayer(layer);
 
       var geojson = null;
-      var geometry = null;
+      geometry = null;
       var points = null;
 
       if (type === 'rectangle') {
@@ -257,7 +283,10 @@ var addControls = function(map) {
 
       toggleResetButton(true);
       getAgg(geometry, points);
-      addCluster(geometry);
+      group.clearLayers();
+      showLayer();
+
+      _gaq.push(['_trackEvent', 'draw:created']);
     }
   );
 
@@ -268,16 +297,59 @@ var addControls = function(map) {
     }
   );
 
-  map.on('moveend', function(e) {
-    var layersDrawn = editableLayers.getLayers();
-    
-    if (layersDrawn.length == 0) {
-      var bounds = map.getBounds();
-      var points = getNeSwPoints(bounds);
+  map.on('moveend', updateGeoAgg);
+  map.on('zoomend', showLayer);
+};
 
-      getAgg(null, points);
+var addTourTips = function() {
+  $('.leaflet-draw.leaflet-control').attr('id', 'leaflet-control');
+
+  // Instance the tour
+  var tour = new Tour({
+    template: '<div class="popover tour">' +
+        '<div class="arrow"></div>' +
+        '<h3 class="popover-title"></h3>' +
+        '<div class="popover-navigation">' +
+          '<button class="btn small btn-default" data-role="prev">« Prev</button>' +
+          '<span data-role="separator"> </span>' +
+          '<button class="btn small btn-default" data-role="next">Next »</button>' +
+          '<button class="btn btn-default" data-role="end">End tour</button>' +
+      '</div>' +
+    '</div>',
+    steps: [
+    {
+      element: '.leaflet-draw.leaflet-control',
+      title: 'Click the rectangle to draw a spatial restriction!',
+      content: '',
+      next: 1,
+      prev: -1
+    },
+    {
+      element: '#geoagg-result-div',
+      title: 'This dashboard will be updated as you interact with the map!',
+      content: '',
+      next: -1,
+      prev: 0,
+      placement: 'left'
     }
-  });
+  ]});
+
+  // Initialize the tour
+  tour.init();
+
+  // Start the tour
+  tour.start();
+};
+
+var updateGeoAgg = function() {
+  var layersDrawn = editableLayers.getLayers();
+
+  if (layersDrawn.length == 0) {
+    var bounds = map.getBounds();
+    var points = getNeSwPoints(bounds);
+
+    getAgg(null, points);
+  }
 };
 
 var addTileLayer = function(url, subdomains) {
@@ -286,7 +358,7 @@ var addTileLayer = function(url, subdomains) {
   };
 
   if (subdomains) {
-    options.subdomains = subdomains
+    options.subdomains = subdomains;
   }
 
   var layer = L.tileLayer(url, options);
@@ -297,9 +369,9 @@ var initMaps = function() {
   var options = {
     attributionControl: false,
     minZoom: 4,
-    maxZoom: 14,
-    zoom: 4,
-    center: [32.54, -99.49],
+    maxZoom: 20,
+    zoom: 11,
+    center: [34.732047, -92.296385],
     maxBounds: [
       [84.67351256610522, -174.0234375],
       [-57.13, 83.32]
@@ -312,17 +384,47 @@ var initMaps = function() {
   var ggl = new L.Google('ROADMAP', options);
   map.addLayer(ggl);
 
-  clusterUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/cluster.json?mapkey=' + mapkey + '&callback={cb}';
-  subdomains = ['m1', 'm2', 'm3'];
-  addCluster();
+  clusterUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/cluster.json?mapkey=' + mapkey;
+  pngUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/tile.png?mapkey=' + mapkey + '&buffer=16';
+
+  showLayer();
 
   addControls(map);
+  addTourTips();
   addAttribution(map);
   configureSize();
 
   var bounds = map.getBounds();
   var points = getNeSwPoints(bounds);
   getAgg(null, points);
+};
+
+var showLayer = function() {
+  var zoom = map.getZoom();
+
+  if (zoom >= 15) {
+    // Show png layer
+
+    if (clusterLayer) {
+      clusterLayer = null;
+      group.clearLayers();
+    }
+
+    if (!pngLayer || group.getLayers().length == 0) {
+      addPngLayer();
+    }
+  } else {
+    // Show cluster layer
+
+    if (pngLayer) {
+      pngLayer = null;
+      group.clearLayers();
+    }
+
+    if (!clusterLayer || group.getLayers().length == 0) {
+      addClusterLayer();
+    }
+  }
 };
 
 var addAttribution = function(map) {
@@ -337,8 +439,7 @@ var addAttribution = function(map) {
 };
 
 var configureSize = function() {
-  var innerHeight = window.innerHeight;
-
+  var innerHeight = parseInt(window.innerHeight) - 15;
   $('#map').css('height', innerHeight + 'px');
 
   reloadGeoAggWithMappBounds();
@@ -347,6 +448,7 @@ var configureSize = function() {
 var reloadGeoAggWithMappBounds = function() {
   var bounds = map.getBounds();
   var points = getNeSwPoints(bounds);
+  geometry = null;
   getAgg(null, points);
 };
 
