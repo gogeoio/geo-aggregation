@@ -4,6 +4,9 @@ var map = null;
 var group = null;
 var polygon = null;
 
+var clusterUrl = null;
+var subdomains = null;
+
 var editableLayers = null;
 
 var databaseName = 'geo_summary';
@@ -15,7 +18,14 @@ var cluster = null;
 var gogeoUrl = 'https://{s}.gogeo.io';
 var geoAggUrl = 'https://maps.gogeo.io/geoagg';
 
-var addCluster = function(clusterUrl, subdomains, group) {
+var addCluster = function(geometry) {
+  var url = clusterUrl;
+  if (geometry) {
+    url = url + '&geom=' + JSON.stringify(geometry);
+  }
+
+  group.clearLayers();
+
   var options = {
     maxZoom: 18,
     subdomains: subdomains,
@@ -29,7 +39,7 @@ var addCluster = function(clusterUrl, subdomains, group) {
     }
   };
 
-  cluster = L.tileCluster(clusterUrl, options);
+  cluster = L.tileCluster(url, options);
   group.addLayer(cluster);
 
   return cluster;
@@ -69,8 +79,8 @@ var getAgg = function(geojson, points) {
 };
 
 var emptyResultList = function() {
-  $('#geosearch-result-list').empty();
-  $('#geosearch-result-qtd').empty();
+  $('#geoagg-result-list').empty();
+  $('#geoagg-result-qtd').empty();
 };
 
 var updateResultList = function(result, total) {
@@ -109,8 +119,8 @@ var updateResultList = function(result, total) {
 
   var totalHtml = '<b>' + $.number(total, 0, '.', '.') + '</b>';
 
-  $('#geosearch-result-list').append(listHtml);
-  $('#geosearch-result-qtd').html(totalHtml);
+  $('#geoagg-result-list').append(listHtml);
+  $('#geoagg-result-qtd').html(totalHtml);
 };
 
 var getItemHtml = function(item, total) {
@@ -159,29 +169,6 @@ var getItemHtml = function(item, total) {
   tr.appendChild(tdCat);
   return tr.outerHTML;
 }
-
-var featureGroupToGeoJson = function(layer) {
-  var geojson = {
-    type: 'Polygon',
-    coordinates: []
-  };
-
-  var pointsAux = layer._latlngs;
-
-  var ne = [pointsAux[2].lat, pointsAux[2].lng];
-  var sw = [pointsAux[0].lat, pointsAux[0].lng];
-
-  var points = [
-    ne,
-    [ne[0], sw[1]],
-    sw,
-    [sw[0], ne[1]]
-  ];
-
-  geojson['coordinates'] = points;
-
-  return geojson;
-};
 
 var getNeSwPoints = function(bounds) {
   var ne = [bounds._northEast.lat, bounds._northEast.lng];
@@ -261,7 +248,7 @@ var addControls = function(map) {
       var geometry = null;
       var points = null;
 
-      if (type === 'polygon') {
+      if (type === 'rectangle') {
         geojson = editableLayers.toGeoJSON();
         geometry = geojson.features[0].geometry;
       } else {
@@ -270,6 +257,7 @@ var addControls = function(map) {
 
       toggleResetButton(true);
       getAgg(geometry, points);
+      addCluster(geometry);
     }
   );
 
@@ -319,15 +307,14 @@ var initMaps = function() {
   };
 
   map = L.map('map', options);
-
   group = new L.LayerGroup().addTo(map);
 
   var ggl = new L.Google('ROADMAP', options);
   map.addLayer(ggl);
 
-  var clusterUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/cluster.json?mapkey=' + mapkey + '&callback={cb}',
-      subdomains = ['m1', 'm2', 'm3'];
-  addCluster(clusterUrl, subdomains, group);
+  clusterUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/cluster.json?mapkey=' + mapkey + '&callback={cb}';
+  subdomains = ['m1', 'm2', 'm3'];
+  addCluster();
 
   addControls(map);
   addAttribution(map);
@@ -363,7 +350,7 @@ var reloadGeoAggWithMappBounds = function() {
   getAgg(null, points);
 };
 
-$(document).on('click', '#geosearch-button',
+$(document).on('click', '#geoagg-button',
   function() {
     var height = $('.leaflet-draw-draw-rectangle').css('height');
     
@@ -377,15 +364,13 @@ $(document).on('click', '#geosearch-button',
 
 var showDrawbuttons = function() {
   $('.leaflet-draw-actions').remove();
-  $('.leaflet-draw-draw-rectangle').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
-  // $('.leaflet-draw-draw-polygon').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){}); 
+  $('.leaflet-draw-draw-rectangle').animate({'height': '26px'}, {'duration': 200, 'queue': false}, function(){});
   $('.leaflet-draw').animate({'top': '13px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw').animate({'left': '35px'}, {'duration': 200, 'queue': false}, function(){});
 };
 
 var hideDrawbuttons = function() {
-  $('.leaflet-draw-draw-rectangle').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){}); 
-  // $('.leaflet-draw-draw-polygon').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){});
+  $('.leaflet-draw-draw-rectangle').animate({'height': '0px'}, {'duration': 200, 'queue': false}, function(){});
   $('.leaflet-draw').animate({'top': '28px'}, {'duration': 200, 'queue': false}, function(){}); 
   $('.leaflet-draw').animate({'left': '3px'}, {'duration': 200, 'queue': false}, function(){});
 };

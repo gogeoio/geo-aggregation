@@ -1,6 +1,6 @@
-#geosearch-result-div {
+#geoagg-result-div {
   width: 335px;
-  height: 560px;
+  height: 600px;
   position: absolute;
   z-index: 1001;
   right: 3px;
@@ -10,30 +10,30 @@
   opacity: 0.8;
 }
 
-#geosearch-result-div #geosearch-result .geosearch-result-title {
+#geoagg-result-div #geoagg-result .geoagg-result-title {
   margin: -5px 0px 5px 20px;
 }
 
-#geosearch-result-div #geosearch-result .geosearch-result-subtitle {
+#geoagg-result-div #geoagg-result .geoagg-result-subtitle {
   margin: -15px 0px 0px 55px;
 }
 
-#geosearch-result-div #geosearch-result .geosearch-result-by {
-  margin: -10px 0px 0px 120px;
+#geoagg-result-div #geoagg-result .geoagg-result-by {
+  margin: -10px 0px 0px 70px;
 }
 
-#geosearch-result-div tr {
+#geoagg-result-div tr {
   border: solid;
   border-width: 1px 0;
   border-style: dashed;
   border-color: #b6b5b5;
 }
 
-#geosearch-result-div td {
+#geoagg-result-div td {
   padding: 8px;
 }
 
-#geosearch-result-div tr {
+#geoagg-result-div tr {
   border: none;
 }
 
@@ -49,21 +49,21 @@
   box-shadow:         -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
 }
 
-#close-geosearch-result {
+#close-geoagg-result {
   margin-top: -31px;
   margin-right: 51px;
 }
 
-#geosearch-result-list {
+#geoagg-result-list {
   width: 300px;
 }
 
-#geosearch-result-list tr td .result {
+#geoagg-result-list tr td .result {
   width: 100%;
   height: 22px;
 }
 
-#geosearch-result-qtd {
+#geoagg-result-qtd {
   margin-top: 5px;
   margin-right: -20px;
 }
