@@ -4,6 +4,8 @@ var map = null;
 var group = null;
 var polygon = null;
 var geometry = null;
+var maxZoom = 18;
+var tour = null;
 
 var pngLayer = null;
 var pngUrl = null;
@@ -29,7 +31,7 @@ var addClusterLayer = function() {
   group.clearLayers();
 
   var options = {
-    maxZoom: 18,
+    maxZoom: maxZoom,
     subdomains: subdomains,
     useJsonP: false,
     calculateClusterQtd: function(zoom) {
@@ -57,12 +59,17 @@ var addPngLayer = function() {
   group.clearLayers();
 
   var options = {
-    maxZoom: 18,
-    subdomains: subdomains
+    maxZoom: maxZoom,
+    subdomains: subdomains,
+    reuseTiles: true,
+    unloadInvisibleTiles: true,
+    updateWhenIdle: true
   };
 
   pngLayer = L.tileLayer(url, options);
   group.addLayer(pngLayer);
+
+  pngLayer.bringToFront();
 
   return pngLayer;
 };
@@ -306,7 +313,7 @@ var addTourTips = function() {
   $('.leaflet-draw.leaflet-control').attr('id', 'leaflet-control');
 
   // Instance the tour
-  var tour = new Tour({
+  tour = new Tour({
     template: '<div class="popover tour">' +
         '<div class="arrow"></div>' +
         '<h3 class="popover-title"></h3>' +
@@ -321,17 +328,21 @@ var addTourTips = function() {
     {
       element: '.leaflet-draw.leaflet-control',
       title: 'Click the rectangle to draw a spatial restriction!',
-      content: '',
       next: 1,
       prev: -1
     },
     {
       element: '#geoagg-result-div',
       title: 'This dashboard will be updated as you interact with the map!',
-      content: '',
-      next: -1,
+      next: 2,
       prev: 0,
       placement: 'left'
+    },
+    {
+      element: '.leaflet-control-zoom.leaflet-bar.leaflet-control',
+      title: 'Zoom in/out to change the detail level (use this buttons or your mouse wheel).',
+      next: -1,
+      prev: 1
     }
   ]});
 
@@ -340,6 +351,16 @@ var addTourTips = function() {
 
   // Start the tour
   tour.start();
+};
+
+$(document).on('click', '#help-div',
+  function() {
+    tour.start(true);
+  }
+);
+
+var showTour = function() {
+  console.log('click');
 };
 
 var updateGeoAgg = function() {
@@ -355,7 +376,7 @@ var updateGeoAgg = function() {
 
 var addTileLayer = function(url, subdomains) {
   var options = {
-    maxZoom: 18
+    maxZoom: maxZoom
   };
 
   if (subdomains) {
@@ -370,7 +391,7 @@ var initMaps = function() {
   var options = {
     attributionControl: false,
     minZoom: 4,
-    maxZoom: 20,
+    maxZoom: maxZoom,
     zoom: 5,
     center: [34.732047, -92.296385],
     maxBounds: [
