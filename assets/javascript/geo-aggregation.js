@@ -12,12 +12,9 @@ var clusterUrl = null;
 
 var editableLayers = null;
 
-var databaseName = 'geo_summary';
-var collectionName = 'places_us_4m';
-var mapkey = '141bb3be-619a-4ffd-9aab-664ad92e568e';
-
-var gogeoUrl = 'https://{s}.gogeo.io';
-var geoAggUrl = 'https://maps.gogeo.io/geoagg';
+var databaseName = 'demos';
+var collectionName = 'simplegeo_4m';
+var mapkey = 'a9b6ed7c-0404-40e0-8c83-64cfcadd276d';
 var subdomains = ['m1', 'm2', 'm3'];
 
 var addClusterLayer = function() {
@@ -81,8 +78,6 @@ var getAgg = function(geojson, points) {
      bottom_left: points[1]
     }
   }
-
-  emptyResultList();
 
   $.ajax({
     url: geoAggUrl + '/' + databaseName + '/' + collectionName + '?mapkey=' + mapkey,
@@ -286,7 +281,9 @@ var addControls = function(map) {
       group.clearLayers();
       showLayer();
 
-      _gaq.push(['_trackEvent', 'draw:created']);
+      if (_gaq) {
+        _gaq.push(['_trackEvent', 'draw:created']);
+      }
     }
   );
 
@@ -370,7 +367,7 @@ var initMaps = function() {
     attributionControl: false,
     minZoom: 4,
     maxZoom: 20,
-    zoom: 11,
+    zoom: 5,
     center: [34.732047, -92.296385],
     maxBounds: [
       [84.67351256610522, -174.0234375],
