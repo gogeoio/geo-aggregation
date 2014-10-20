@@ -326,23 +326,23 @@ var addTourTips = function() {
     '</div>',
     steps: [
     {
-      element: '.leaflet-draw.leaflet-control',
-      title: 'Click the rectangle to draw a spatial restriction!',
+      element: '.leaflet-control-zoom.leaflet-bar.leaflet-control',
+      title: 'Zoom in/out to change the detail level (use this buttons or your mouse wheel).',
       next: 1,
       prev: -1
     },
     {
-      element: '#geoagg-result-div',
-      title: 'This dashboard will be updated as you interact with the map!',
+      element: '.leaflet-draw.leaflet-control',
+      title: 'Click the rectangle to draw a spatial restriction!',
       next: 2,
-      prev: 0,
-      placement: 'left'
+      prev: 0
     },
     {
-      element: '.leaflet-control-zoom.leaflet-bar.leaflet-control',
-      title: 'Zoom in/out to change the detail level (use this buttons or your mouse wheel).',
+      element: '#geoagg-result-div',
+      title: 'This dashboard will be updated as you interact with the map!',
       next: -1,
-      prev: 1
+      prev: 1,
+      placement: 'left'
     }
   ]});
 
