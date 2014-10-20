@@ -118,8 +118,8 @@ L.TileCluster = L.Class.extend({
 
     this._group.on('mouseover', this._drawConvexHull, this);
     this._group.on('mouseout', this._removeConvexHull, this);
-    this._map.on('moveend', this._update, this);
-    this._map.on('zoomend', this._update, this);
+    map.on('moveend', this._update, this);
+    map.on('zoomend', this._update, this);
   },
 
   _update: function () {
@@ -260,7 +260,7 @@ L.TileCluster = L.Class.extend({
       for (var i in data) {
         var cluster = data[i];
         var coords = cluster.coords;
-        var latlng = L.latLng(coords[1], coords[0]);
+        var latlng = L.latLng(coords[0], coords[1]);
 
         if (cluster.count >= 2) {
           var clusterIcon = this.options.createIcon(cluster);
@@ -332,8 +332,9 @@ L.TileCluster = L.Class.extend({
     for (var i = 0; i < points.length; i++) {
       var point = points[i].trim();
       point = point.split(' ');
-      var lon = parseFloat(point[0].trim());
-      var lat = parseFloat(point[1].trim());
+
+      var lat = parseFloat(point[0].trim());
+      var lon = parseFloat(point[1].trim());
 
       lls.push(L.latLng(lat, lon));
     }
