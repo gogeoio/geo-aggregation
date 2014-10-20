@@ -356,6 +356,9 @@ var addTourTips = function() {
 $(document).on('click', '#help-div',
   function() {
     tour.start(true);
+    if (tour.getCurrentStep() != 0) {
+      tour.goTo(0);
+    }
   }
 );
 
