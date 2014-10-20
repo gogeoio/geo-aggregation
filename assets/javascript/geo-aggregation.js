@@ -14,7 +14,7 @@ var editableLayers = null;
 
 var gogeoUrl = 'https://{s}.gogeo.io';
 var geoAggUrl = 'https://maps.gogeo.io/geoagg';
-var subdomains = ['m1', 'm2', 'm3'];
+var subdomains = ['m1', 'm2', 'm3', 'm4'];
 
 var databaseName = 'demos';
 var collectionName = 'simplegeo_4m';
@@ -218,7 +218,8 @@ var addResetButton = function() {
       } else {
         editableLayers.clearLayers();
         toggleResetButton(false);
-        reloadGeoAggWithMappBounds();
+        geometry = null;
+        reloadGeoAggWithMapBounds();
         group.clearLayers();
         showLayer();
       }
@@ -442,14 +443,13 @@ var configureSize = function() {
   var innerHeight = parseInt(window.innerHeight) - 15;
   $('#map').css('height', innerHeight + 'px');
 
-  reloadGeoAggWithMappBounds();
+  reloadGeoAggWithMapBounds();
 };
 
-var reloadGeoAggWithMappBounds = function() {
+var reloadGeoAggWithMapBounds = function() {
   var bounds = map.getBounds();
   var points = getNeSwPoints(bounds);
-  geometry = null;
-  getAgg(null, points);
+  getAgg(geometry, points);
 };
 
 $(document).on('click', '#geoagg-button',
