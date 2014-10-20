@@ -12,10 +12,13 @@ var clusterUrl = null;
 
 var editableLayers = null;
 
+var gogeoUrl = 'https://{s}.gogeo.io';
+var geoAggUrl = 'https://maps.gogeo.io/geoagg';
+var subdomains = ['m1', 'm2', 'm3'];
+
 var databaseName = 'demos';
 var collectionName = 'simplegeo_4m';
 var mapkey = 'a9b6ed7c-0404-40e0-8c83-64cfcadd276d';
-var subdomains = ['m1', 'm2', 'm3'];
 
 var addClusterLayer = function() {
   var url = clusterUrl;
