@@ -293,7 +293,7 @@ var addControls = function(map) {
       showLayer();
 
       if (window._gaq) {
-        _gaq.push(['_trackEvent', 'draw:created']);
+        _gaq.push(['_trackEvent', 'draw', 'created']);
       }
     }
   );
@@ -353,7 +353,7 @@ var addTourTips = function() {
   tour.start();
 };
 
-$(document).on('click', '#help-div',
+$(document).on('click', '#help-button',
   function() {
     tour.start(true);
     if (tour.getCurrentStep() != 0) {
