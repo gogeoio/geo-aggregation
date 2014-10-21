@@ -292,7 +292,7 @@ var addControls = function(map) {
       group.clearLayers();
       showLayer();
 
-      if (_gaq) {
+      if (window._gaq) {
         _gaq.push(['_trackEvent', 'draw:created']);
       }
     }
