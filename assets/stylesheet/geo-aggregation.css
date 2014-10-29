@@ -38,18 +38,6 @@
   border: none;
 }
 
-#reset-search {
-  position: absolute;
-  z-index: 1001;
-  top: 83px;
-  left: 5px;
-  height: 30px;
-
-  -webkit-box-shadow: -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
-  -moz-box-shadow:    -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
-  box-shadow:         -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
-}
-
 #close-geoagg-result {
   margin-top: -31px;
   margin-right: 51px;
@@ -67,6 +55,18 @@
 #geoagg-result-qtd {
   margin-top: 5px;
   margin-right: -20px;
+}
+
+#reset-search {
+  position: absolute;
+  z-index: 1001;
+  top: 83px;
+  left: 5px;
+  height: 30px;
+
+  -webkit-box-shadow: -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
+  -moz-box-shadow:    -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
+  box-shadow:         -1px 0px 2px 0px rgba(30, 30, 30, 0.9);
 }
 
 .progress {

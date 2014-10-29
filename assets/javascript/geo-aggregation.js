@@ -293,7 +293,7 @@ var addControls = function(map) {
       showLayer();
 
       if (window._gaq) {
-        _gaq.push(['_trackEvent', 'draw', 'created']);
+        _gaq.push(['_trackEvent', 'geo-aggregation', 'draw:created']);
       }
     }
   );
@@ -361,10 +361,6 @@ $(document).on('click', '#help-button',
     }
   }
 );
-
-var showTour = function() {
-  console.log('click');
-};
 
 var updateGeoAgg = function() {
   var layersDrawn = editableLayers.getLayers();
