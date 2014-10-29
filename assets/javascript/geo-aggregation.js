@@ -314,6 +314,7 @@ var addTourTips = function() {
 
   // Instance the tour
   tour = new Tour({
+    name: 'geo-aggregation-tour',
     template: '<div class="popover tour">' +
         '<div class="arrow"></div>' +
         '<h3 class="popover-title"></h3>' +
