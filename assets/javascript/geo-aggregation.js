@@ -19,7 +19,7 @@ var geoAggUrl = 'https://maps.gogeo.io/geoagg';
 var subdomains = ['m1', 'm2', 'm3', 'm4'];
 
 var databaseName = 'demos';
-var collectionName = 'simplegeo_4m';
+var collectionName = 'simplegeo_us';
 var mapkey = 'a9b6ed7c-0404-40e0-8c83-64cfcadd276d';
 
 var addClusterLayer = function() {
