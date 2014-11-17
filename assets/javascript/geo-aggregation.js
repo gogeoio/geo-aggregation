@@ -14,8 +14,8 @@ var clusterUrl = null;
 
 var editableLayers = null;
 
-var gogeoUrl = 'https://{s}.gogeo.io';
-var geoAggUrl = 'https://maps.gogeo.io/geoagg';
+var gogeoUrl = 'http://{s}.gogeo.io';
+var geoAggUrl = 'http://maps.gogeo.io/geoagg';
 var subdomains = ['m1', 'm2', 'm3', 'm4'];
 
 var databaseName = 'demos';
