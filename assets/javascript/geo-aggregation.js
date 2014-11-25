@@ -16,6 +16,7 @@ var editableLayers = null;
 
 var gogeoUrl = 'http://{s}.gogeo.io';
 var geoAggUrl = 'http://maps.gogeo.io/geoagg';
+var geosearchUrl = 'http://maps.gogeo.io/geosearch';
 var subdomains = ['m1', 'm2', 'm3', 'm4'];
 
 var databaseName = 'demos';
@@ -306,7 +307,72 @@ var addControls = function(map) {
   );
 
   map.on('moveend', updateGeoAgg);
+
   map.on('zoomend', showLayer);
+
+  map.on('click', 
+    function onMapClick(e) {
+      console.log('Capturou! - zoom: ', map.getZoom());
+      // Create a GeoJson Point by the latlng of clicked area
+      if(map.getZoom() >= 15){
+        var point = {
+          type: 'Point',
+          coordinates: [e.latlng.lng, e.latlng.lat]
+        }
+        
+        // Determine the pixel distance in kilometers to a given latitude and zoom level
+        // See "http://wiki.openstreetmap.org/wiki/Zoom_levels" for details
+        var pixelDist = 40075 * Math.cos((e.latlng.lat * Math.PI / 180)) / Math.pow(2,(map.getZoom() + 8));
+        
+        // Construct the parameter for the geosearch requisition
+        var options = {
+          limit: 1,
+          buffer: pixelDist * 8, // Define a buffer with haf marker size
+          buffer_measure: 'kilometer',
+          geom: point
+        }
+
+        // Construct the url for the geosearch requisition
+        var iteractiveUrl = geosearchUrl + '/' + databaseName + '/' + collectionName + '?mapkey=' + mapkey;
+
+        // Make the request and show the result, available for zoom level greater or equal to 15 (marker level)
+        if(map.getZoom() >= 15){
+          $.ajax({
+            url: iteractiveUrl,
+            data: JSON.stringify(options),
+            type: 'POST',
+            contentType: 'application/json',
+            crossDomain: true,
+            dataType: 'json',
+            async: true,
+              success: function (data){
+                if (data.length > 0){
+                  // Construct the information to be shown (Specific of each collection!)
+                  var content = "<h3>" + "Name: " + data[0].name + "</h3>" +
+                    "<p>" +
+                    "Type: " + data[0].type + "</br>" +
+                    "Category: " + data[0].category + "</br>" +
+                    "Subcategory: " + data[0].Subcategory + "</br>" +
+                    "City: " + data[0].city + "</br>" +
+                    "Country: " + data[0].country + "</br>" +
+                    "Post code: " + data[0].postcode
+                    "</p>";
+                  var popup = L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(content)
+                    .openOn(map);
+                }
+              },
+              error: function(error) {
+                // Log any error.
+                console.log('Error', error);
+              },
+              cache: false
+          });
+        }
+      }
+    }
+  );
 };
 
 var addTourTips = function() {
