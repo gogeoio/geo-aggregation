@@ -14,13 +14,13 @@ var clusterUrl = null;
 
 var editableLayers = null;
 
-var gogeoUrl = 'http://{s}.gogeo.io';
-var geoAggUrl = 'http://maps.gogeo.io/geoagg';
-var geosearchUrl = 'http://maps.gogeo.io/geosearch';
+var gogeoUrl = 'http://{s}.gogeo.io/1.0';
+var geoAggUrl = 'http://api.gogeo.io/1.0/geoagg';
+var geosearchUrl = 'http://api.gogeo.io/1.0/geosearch';
 var subdomains = ['m1', 'm2', 'm3', 'm4'];
 
 var databaseName = 'demos';
-var collectionName = 'simplegeo_us';
+var collectionName = 'simple_geo_us';
 var mapkey = 'a9b6ed7c-0404-40e0-8c83-64cfcadd276d';
 
 var addClusterLayer = function() {
