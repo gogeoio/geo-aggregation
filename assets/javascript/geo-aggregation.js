@@ -20,8 +20,8 @@ var geosearchUrl = 'http://api.gogeo.io/1.0/geosearch';
 var subdomains = ['m1', 'm2', 'm3', 'm4'];
 
 var databaseName = 'demos';
-var collectionName = 'simple_geo_us';
-var mapkey = 'a9b6ed7c-0404-40e0-8c83-64cfcadd276d';
+var collectionName = 'simplegeo_places';
+var mapkey = '5db514e30b9f340eda00671230d5136855ae14d7';
 
 var addClusterLayer = function() {
   var url = clusterUrl;
@@ -459,11 +459,11 @@ var initMaps = function() {
     minZoom: 4,
     maxZoom: maxZoom,
     zoom: 5,
-    center: [34.732047, -92.296385],
+    center: [34.732047, -92.296385]/*,
     maxBounds: [
       [84.67351256610522, -174.0234375],
       [-57.13, 83.32]
-    ]
+    ]*/
   };
 
   map = L.map('map', options);
