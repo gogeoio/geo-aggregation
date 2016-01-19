@@ -14,10 +14,10 @@ var clusterUrl = null;
 
 var editableLayers = null;
 
-var gogeoUrl = 'http://{s}.gogeo.io/1.0';
-var geoAggUrl = 'http://api.gogeo.io/1.0/geoagg';
-var geosearchUrl = 'http://api.gogeo.io/1.0/geosearch';
-var subdomains = ['m1', 'm2', 'm3', 'm4'];
+var gogeoUrl = 'http://{s}.demos.gogeo.io/1.0';
+var geoAggUrl = 'http://maps.demos.gogeo.io/1.0/geoagg';
+var geosearchUrl = 'http://maps.demos.gogeo.io/1.0/geosearch';
+var subdomains = ['m01', 'm02', 'm03', 'm04'];
 
 var databaseName = 'demos';
 var collectionName = 'simplegeo_places';
@@ -469,8 +469,9 @@ var initMaps = function() {
   map = L.map('map', options);
   group = new L.LayerGroup().addTo(map);
 
-  var ggl = new L.Google('ROADMAP', options);
-  map.addLayer(ggl);
+  var url = "https://{s}.api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=x7es9779w29jcm3yhqgvwunf";
+  var baseLayer = L.tileLayer(url, options);
+  map.addLayer(baseLayer);
 
   clusterUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/cluster.json?mapkey=' + mapkey;
   pngUrl = gogeoUrl + '/map/' + databaseName + '/' + collectionName + '/{z}/{x}/{y}/tile.png?mapkey=' + mapkey + '&buffer=16';
